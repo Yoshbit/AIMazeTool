@@ -27,6 +27,7 @@ class Agent:
     location = ()
     status = Status.SEARCHING
     fitness = 0
+    goal_complete_reward = 25
 
     def __init__(self):
         print()
@@ -54,11 +55,18 @@ class Agent:
                 self.set_location(self.location[0], self.location[1] + 1)
                 self.update_fitness(-abs(maze.get_cell(self.location[0], self.location[1] + 1).get_obstruction_cost()))
 
+                if maze.get_cell(self.location[0], self.location[1] + 1).is_entry and maze.agent.get_status() == Status.SEARCHING:
+                    self.update_fitness(self.goal_complete_reward)
+
+
         if direction == Direction.SOUTH:
             if maze.get_cell(self.location[0], self.location[1] - 1).is_free or \
                     maze.get_cell(self.location[0], self.location[1] - 1).is_entry:
                 self.set_location(self.location[0], self.location[1] - 1)
                 self.update_fitness(-abs(maze.get_cell(self.location[0], self.location[1] - 1).get_obstruction_cost()))
+
+                if maze.get_cell(self.location[0], self.location[1] - 1).is_entry and maze.agent.get_status() == Status.SEARCHING:
+                    self.update_fitness(self.goal_complete_reward)
 
         if direction == Direction.EAST:
             if maze.get_cell(self.location[0] + 1, self.location[1]).is_free or \
@@ -66,11 +74,17 @@ class Agent:
                 self.set_location(self.location[0] + 1, self.location[1])
                 self.update_fitness(-abs(maze.get_cell(self.location[0] + 1, self.location[1]).get_obstruction_cost()))
 
+                if maze.get_cell(self.location[0] + 1, self.location[1]).is_entry and maze.agent.get_status() == Status.SEARCHING:
+                    self.update_fitness(self.goal_complete_reward)
+
         if direction == Direction.WEST:
             if maze.get_cell(self.location[0] - 1, self.location[1]).is_free or \
                     maze.get_cell(self.location[0] - 1, self.location[1]).is_entry:
                 self.set_location(self.location[0] - 1, self.location[1])
                 self.update_fitness(-abs(maze.get_cell(self.location[0] - 1, self.location[1]).get_obstruction_cost()))
+
+                if maze.get_cell(self.location[0] - 1, self.location[1]).is_entry and maze.agent.get_status() == Status.SEARCHING:
+                    self.update_fitness(self.goal_complete_reward)
 
 
 class Maze:
@@ -152,7 +166,10 @@ class Maze:
             Exception("Error, (x_pos, y_pos) does not correspond to a valid map Cell")
 
     def get_cell_obstruction_cost(self, x_pos, y_pos):
-        Exception("Unimplemented")
+        try:
+            return self.map_tiles[(x_pos, y_pos)].obstruction_cost
+        except:
+            Exception("Error, (x_pos, y_pos) does not correspond to a valid map Cell")
 
 
 class Cell:
@@ -222,13 +239,11 @@ entry.get_location()
 wall.get_location()
 print(wall.is_wall)
 
-maze = Maze("../res/map1.tsv")
+maze = Maze("res/map1.tsv")
 
 # print(maze.map_tiles)
 print(maze.agent.move(Direction.EAST))
 print(maze.agent.get_location())
 print(maze.map_tiles)
-
-
 
 
