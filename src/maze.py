@@ -4,12 +4,14 @@ from enum import Enum
 
 from PIL import Image, ImageDraw
 
+
 # images = []
 
 # Enums to represent Status
 class Status(Enum):
     SEARCHING = 0
     FOUND = 1
+
 
 class Direction(Enum):
     NORTH = 0
@@ -19,9 +21,9 @@ class Direction(Enum):
 
     # TODO: Add more status configurations
 
+
 # Temporarily we instantiate Agent with a Searching status
 class Agent:
-
     location = ()
     status = Status.SEARCHING
     fitness = 0
@@ -42,30 +44,34 @@ class Agent:
         self.status = status
 
     def update_fitness(self, fitness):
-        self.fitness = fitness
+        self.fitness = self.fitness + fitness
 
     # If invalid location it simply does not update the agent's position
     def move(self, direction):
         if direction == Direction.NORTH:
             if maze.get_cell(self.location[0], self.location[1] + 1).is_free or \
-               maze.get_cell(self.location[0], self.location[1] + 1).is_entry:
-
+                    maze.get_cell(self.location[0], self.location[1] + 1).is_entry:
                 self.set_location(self.location[0], self.location[1] + 1)
+                self.update_fitness(-abs(maze.get_cell(self.location[0], self.location[1] + 1).get_obstruction_cost()))
+
         if direction == Direction.SOUTH:
             if maze.get_cell(self.location[0], self.location[1] - 1).is_free or \
-               maze.get_cell(self.location[0], self.location[1] - 1).is_entry:
-
+                    maze.get_cell(self.location[0], self.location[1] - 1).is_entry:
                 self.set_location(self.location[0], self.location[1] - 1)
+                self.update_fitness(-abs(maze.get_cell(self.location[0], self.location[1] - 1).get_obstruction_cost()))
+
         if direction == Direction.EAST:
             if maze.get_cell(self.location[0] + 1, self.location[1]).is_free or \
-               maze.get_cell(self.location[0] + 1, self.location[1]).is_entry:
-
+                    maze.get_cell(self.location[0] + 1, self.location[1]).is_entry:
                 self.set_location(self.location[0] + 1, self.location[1])
+                self.update_fitness(-abs(maze.get_cell(self.location[0] + 1, self.location[1]).get_obstruction_cost()))
+
         if direction == Direction.WEST:
             if maze.get_cell(self.location[0] - 1, self.location[1]).is_free or \
-               maze.get_cell(self.location[0] - 1, self.location[1]).is_entry:
-
+                    maze.get_cell(self.location[0] - 1, self.location[1]).is_entry:
                 self.set_location(self.location[0] - 1, self.location[1])
+                self.update_fitness(-abs(maze.get_cell(self.location[0] - 1, self.location[1]).get_obstruction_cost()))
+
 
 class Maze:
     map_tiles = {}
@@ -106,17 +112,19 @@ class Maze:
                 if self.decide_cell_type(x) == "Free":
                     new_cell = Free(current_column, current_row)
                     self.map_tiles[(current_column, current_row)] = new_cell
+
                 if self.decide_cell_type(x) == "Wall":
                     new_cell = Wall(current_column, current_row)
                     self.map_tiles[(current_column, current_row)] = new_cell
+
                 if self.decide_cell_type(x) == "Entry":
                     new_cell = Entry(current_column, current_row)
                     self.map_tiles[(current_column, current_row)] = new_cell
+
                 if self.decide_cell_type(x) == "Agent":
                     new_cell = Free(current_column, current_row)
                     self.map_tiles[(current_column, current_row)] = new_cell
                     self.agent.set_location(current_column, current_row)
-
 
                 current_column = current_column + 1
 
@@ -146,12 +154,13 @@ class Maze:
     def get_cell_obstruction_cost(self, x_pos, y_pos):
         Exception("Unimplemented")
 
+
 class Cell:
     location = ()
     is_entry = False
     is_free = False
     is_wall = False
-    
+
     obstruction_cost = 0
 
     def __init__(self, x_pos, y_pos):
@@ -187,6 +196,7 @@ class Free(Cell):
         self.is_free = True
         self.obstruction_cost = 1
 
+
 class Entry(Cell):
     def __init__(self, x_pos, y_pos):
         super().__init__(x_pos, y_pos)
@@ -194,13 +204,13 @@ class Entry(Cell):
         self.is_entry = True
         self.obstruction_cost = 5
 
+
 class Wall(Cell):
     def __init__(self, x_pos, y):
         super().__init__(x_pos, y)
 
         self.is_wall = True
         self.obstruction_cost = 25
-
 
 
 free = Free(1, 2)
@@ -214,7 +224,7 @@ print(wall.is_wall)
 
 maze = Maze("../res/map1.tsv")
 
-#print(maze.map_tiles)
+# print(maze.map_tiles)
 print(maze.agent.move(Direction.EAST))
 print(maze.agent.get_location())
 print(maze.map_tiles)
