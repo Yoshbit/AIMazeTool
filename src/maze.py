@@ -1,4 +1,8 @@
+#!/usr/bin/python
+
+
 # Maze Generator
+import sys
 import csv
 from enum import Enum
 
