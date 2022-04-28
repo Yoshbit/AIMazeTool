@@ -7,6 +7,7 @@ from PIL import Image, ImageDraw
 
 # images = []
 
+# TODO: Add more status configurations
 # Enums to represent Status
 class Status(Enum):
     SEARCHING = 0
@@ -18,9 +19,6 @@ class Direction(Enum):
     SOUTH = 1
     EAST = 2
     WEST = 3
-
-    # TODO: Add more status configurations
-
 
 # Temporarily we instantiate Agent with a Searching status
 class Agent:
@@ -55,9 +53,10 @@ class Agent:
                 self.set_location(self.location[0], self.location[1] + 1)
                 self.update_fitness(-abs(maze.get_cell(self.location[0], self.location[1] + 1).get_obstruction_cost()))
 
+                # Checks if we enter a reward state
                 if maze.get_cell(self.location[0], self.location[1] + 1).is_entry and maze.agent.get_status() == Status.SEARCHING:
                     self.update_fitness(self.goal_complete_reward)
-
+                return
 
         if direction == Direction.SOUTH:
             if maze.get_cell(self.location[0], self.location[1] - 1).is_free or \
@@ -65,8 +64,10 @@ class Agent:
                 self.set_location(self.location[0], self.location[1] - 1)
                 self.update_fitness(-abs(maze.get_cell(self.location[0], self.location[1] - 1).get_obstruction_cost()))
 
+                # Checks if we enter a reward state
                 if maze.get_cell(self.location[0], self.location[1] - 1).is_entry and maze.agent.get_status() == Status.SEARCHING:
                     self.update_fitness(self.goal_complete_reward)
+                return
 
         if direction == Direction.EAST:
             if maze.get_cell(self.location[0] + 1, self.location[1]).is_free or \
@@ -74,8 +75,10 @@ class Agent:
                 self.set_location(self.location[0] + 1, self.location[1])
                 self.update_fitness(-abs(maze.get_cell(self.location[0] + 1, self.location[1]).get_obstruction_cost()))
 
+                # Checks if we enter a reward state
                 if maze.get_cell(self.location[0] + 1, self.location[1]).is_entry and maze.agent.get_status() == Status.SEARCHING:
                     self.update_fitness(self.goal_complete_reward)
+                return
 
         if direction == Direction.WEST:
             if maze.get_cell(self.location[0] - 1, self.location[1]).is_free or \
@@ -83,8 +86,13 @@ class Agent:
                 self.set_location(self.location[0] - 1, self.location[1])
                 self.update_fitness(-abs(maze.get_cell(self.location[0] - 1, self.location[1]).get_obstruction_cost()))
 
+                # Checks if we enter a reward state
                 if maze.get_cell(self.location[0] - 1, self.location[1]).is_entry and maze.agent.get_status() == Status.SEARCHING:
                     self.update_fitness(self.goal_complete_reward)
+                return
+
+        # If tile is a wall it does not update the agents location and decreases out agents fitness by one
+        self.update_fitness(-1)
 
 
 class Maze:
@@ -120,7 +128,6 @@ class Maze:
         current_row = 0
         current_column = 0
         for row in read_tsv:
-            print(current_row)
             for x in row:
                 # Decides on the Cell type
                 if self.decide_cell_type(x) == "Free":
@@ -234,9 +241,9 @@ free = Free(1, 2)
 entry = Entry(1, 3)
 wall = Wall(1, 4)
 
-free.get_location()
-entry.get_location()
-wall.get_location()
+#free.get_location()
+#entry.get_location()
+#wall.get_location()
 print(wall.is_wall)
 
 maze = Maze("res/map1.tsv")
