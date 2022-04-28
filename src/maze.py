@@ -53,9 +53,14 @@ class Agent:
                 self.set_location(self.location[0], self.location[1] + 1)
                 self.update_fitness(-abs(maze.get_cell(self.location[0], self.location[1] + 1).get_obstruction_cost()))
 
+                # Updates which cell our agent is currently in
+                maze.get_cell(self.get_location()[0], self.get_location()[1]).set_contains_agent(False)
+                maze.get_cell(self.location[0], self.location[1] + 1).set_contains_agent(True)
+
                 # Checks if we enter a reward state
                 if maze.get_cell(self.location[0], self.location[1] + 1).is_entry and maze.agent.get_status() == Status.SEARCHING:
                     self.update_fitness(self.goal_complete_reward)
+                    self.set_status(Status.FOUND)
                 return
 
         if direction == Direction.SOUTH:
@@ -64,9 +69,14 @@ class Agent:
                 self.set_location(self.location[0], self.location[1] - 1)
                 self.update_fitness(-abs(maze.get_cell(self.location[0], self.location[1] - 1).get_obstruction_cost()))
 
+                # Updates which cell our agent is currently in
+                maze.get_cell(self.get_location()[0], self.get_location()[1]).set_contains_agent(False)
+                maze.get_cell(self.location[0], self.location[1] + 1).set_contains_agent(True)
+
                 # Checks if we enter a reward state
                 if maze.get_cell(self.location[0], self.location[1] - 1).is_entry and maze.agent.get_status() == Status.SEARCHING:
                     self.update_fitness(self.goal_complete_reward)
+                    self.set_status(Status.FOUND)
                 return
 
         if direction == Direction.EAST:
@@ -75,9 +85,14 @@ class Agent:
                 self.set_location(self.location[0] + 1, self.location[1])
                 self.update_fitness(-abs(maze.get_cell(self.location[0] + 1, self.location[1]).get_obstruction_cost()))
 
+                # Updates which cell our agent is currently in
+                maze.get_cell(self.get_location()[0], self.get_location()[1]).set_contains_agent(False)
+                maze.get_cell(self.location[0], self.location[1] + 1).set_contains_agent(True)
+
                 # Checks if we enter a reward state
                 if maze.get_cell(self.location[0] + 1, self.location[1]).is_entry and maze.agent.get_status() == Status.SEARCHING:
                     self.update_fitness(self.goal_complete_reward)
+                    self.set_status(Status.FOUND)
                 return
 
         if direction == Direction.WEST:
@@ -86,9 +101,14 @@ class Agent:
                 self.set_location(self.location[0] - 1, self.location[1])
                 self.update_fitness(-abs(maze.get_cell(self.location[0] - 1, self.location[1]).get_obstruction_cost()))
 
+                # Updates which cell our agent is currently in
+                maze.get_cell(self.get_location()[0], self.get_location()[1]).set_contains_agent(False)
+                maze.get_cell(self.location[0], self.location[1] + 1).set_contains_agent(True)
+
                 # Checks if we enter a reward state
                 if maze.get_cell(self.location[0] - 1, self.location[1]).is_entry and maze.agent.get_status() == Status.SEARCHING:
                     self.update_fitness(self.goal_complete_reward)
+                    self.set_status(Status.FOUND)
                 return
 
         # If tile is a wall it does not update the agents location and decreases out agents fitness by one
@@ -144,6 +164,7 @@ class Maze:
 
                 if self.decide_cell_type(x) == "Agent":
                     new_cell = Free(current_column, current_row)
+                    new_cell.set_contains_agent(True)
                     self.map_tiles[(current_column, current_row)] = new_cell
                     self.agent.set_location(current_column, current_row)
 
@@ -184,6 +205,7 @@ class Cell:
     is_entry = False
     is_free = False
     is_wall = False
+    contains_agent = False
 
     obstruction_cost = 0
 
@@ -204,12 +226,17 @@ class Cell:
     def get_obstruction_cost(self):
         return self.obstruction_cost
 
+    def get_contains_agent(self):
+        return self.contains_agent
+
     def set_location(self, x_pos, y_pos):
         self.location = (x_pos, y_pos)
 
     def set_obstruction_cost(self, obstruction_cost):
         self.obstruction_cost = obstruction_cost
 
+    def set_contains_agent(self, contains_agent):
+        self.contains_agent = contains_agent
 
 # Currently all Cells default to a pre-set obstruction_cost
 
