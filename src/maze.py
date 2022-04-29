@@ -5,18 +5,14 @@
 import sys
 import csv
 from enum import Enum
+from graphics import *
 
-from PIL import Image, ImageDraw
-
-
-# images = []
 
 # TODO: Add more status configurations
 # Enums to represent Status
 class Status(Enum):
     SEARCHING = 0
     FOUND = 1
-
 
 class Direction(Enum):
     NORTH = 0
@@ -121,6 +117,9 @@ class Agent:
 
 class Maze:
     map_tiles = {}
+    map_graphics = {}
+    win = GraphWin("Maze", 500, 500)
+    win.setCoords(0, 0, 10, 10)
     agent = Agent()
 
     def __init__(self, maze_file):
@@ -142,6 +141,31 @@ class Maze:
     def decide_agent_starting_location(self):
         Exception("Unimplemented")
 
+        #        rectangle = Rectangle(Point(x, 1), Point(x + 1, 2))
+        #        rectangle.setFill("#000000")
+        #        rectangle.draw(window)
+
+    def prep_maze_graphics(self, x_pos, y_pos, color, cell_type):
+        if cell_type == "Free":
+            maze_cell = Rectangle(Point(x_pos + 1, y_pos + 1), Point(x_pos + 2, y_pos + 2))
+            maze_cell.setFill(color)
+            maze_cell.draw(self.win)
+
+        elif cell_type == "Wall":
+            maze_cell = Rectangle(Point(x_pos + 1, y_pos + 1), Point(x_pos + 2, y_pos + 2))
+            maze_cell.setFill(color)
+            maze_cell.draw(self.win)
+
+        elif cell_type == "Entry":
+            maze_cell = Rectangle(Point(x_pos + 1.75, y_pos + 1.75), Point(x_pos + 1.25, y_pos + 1.25))
+            maze_cell.setFill(color)
+            maze_cell.draw(self.win)
+
+        elif cell_type == "Agent":
+            maze_cell = Rectangle(Point(x_pos + 1.75, y_pos + 1.75), Point(x_pos + 1.25, y_pos + 1.25))
+            maze_cell.setFill(color)
+            maze_cell.draw(self.win)
+
     # Loads our maze from the .tsv file
     def generate_maze(self, maze_file):
 
@@ -158,19 +182,30 @@ class Maze:
                     new_cell = Free(current_column, current_row)
                     self.map_tiles[(current_column, current_row)] = new_cell
 
+                    self.prep_maze_graphics(current_column, current_row, "#A0A0A0", "Free")
+
                 if self.decide_cell_type(x) == "Wall":
                     new_cell = Wall(current_column, current_row)
                     self.map_tiles[(current_column, current_row)] = new_cell
 
+                    self.prep_maze_graphics(current_column, current_row, "#000000", "Wall")
+
+
                 if self.decide_cell_type(x) == "Entry":
                     new_cell = Entry(current_column, current_row)
                     self.map_tiles[(current_column, current_row)] = new_cell
+
+                    self.prep_maze_graphics(current_column, current_row, "#00CC00", "Entry")
+
 
                 if self.decide_cell_type(x) == "Agent":
                     new_cell = Free(current_column, current_row)
                     new_cell.set_contains_agent(True)
                     self.map_tiles[(current_column, current_row)] = new_cell
                     self.agent.set_location(current_column, current_row)
+
+                    self.prep_maze_graphics(current_column, current_row, "#FF0000", "Agent")
+
 
                 current_column = current_column + 1
 
@@ -268,20 +303,39 @@ class Wall(Cell):
         self.obstruction_cost = 25
 
 
-free = Free(1, 2)
-entry = Entry(1, 3)
-wall = Wall(1, 4)
 
-#free.get_location()
-#entry.get_location()
-#wall.get_location()
-print(wall.is_wall)
 
-maze = Maze("res/map1.tsv")
+maze = Maze("../res/map1.tsv")
 
 # print(maze.map_tiles)
-print(maze.agent.move(Direction.EAST))
-print(maze.agent.get_location())
+#print(maze.agent.move(Direction.EAST))
 print(maze.map_tiles)
 
+
+
+
+
+
+#def drawBoard(window, maze_x_length, maze_y_length):
+#    for x in range(10):
+##        rectangle = Rectangle(Point(x, 1), Point(x + 1, 2))
+#        rectangle.setFill("#000000")
+#        rectangle.draw(window)
+
+
+    #window.setBackground("grey")
+    #rectangle1 = Rectangle(Point(1, 1), Point(2, 2))
+    #rectangle1.setFill("#000000")
+    #rectangle1.draw(window)
+
+    #rectangle2 = Rectangle(Point(2, 1), Point(3, 2))
+    #rectangle2.setFill("#000000")
+    #rectangle2.draw(window)
+
+# (win is window)
+
+#drawBoard(win, 1, 2)
+maze.win.setBackground("gray")
+maze.win.getMouse()
+maze.win.close()
 
