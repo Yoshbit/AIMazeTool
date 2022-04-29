@@ -6,6 +6,7 @@ import sys
 import csv
 from enum import Enum
 from graphics import *
+import time
 
 
 # TODO: Add more status configurations
@@ -44,6 +45,17 @@ class Agent:
 
     def update_fitness(self, fitness):
         self.fitness = self.fitness + fitness
+
+    def update_agent_graphical_location(self, old_x_pos, old_y_pos, new_x_pos, new_y_pos):
+
+        #TODO: Do the math to figure out where the new rect fits
+        
+        #TODO: Unset old positions color and set it to be "Free"
+
+
+        maze.map_graphics.get((old_x_pos, old_y_pos)).fillColor("#A0A0A0")
+
+        maze.map_graphics.get((new_x_pos, new_y_pos)).fillColor("#FF0000")
 
     # If invalid location it simply does not update the agent's position
     def move(self, direction):
@@ -119,7 +131,7 @@ class Maze:
     map_tiles = {}
     map_graphics = {}
     win = GraphWin("Maze", 500, 500)
-    win.setCoords(0, 0, 10, 10)
+    win.setCoords(0, 0, 15, 15)
     agent = Agent()
 
     def __init__(self, maze_file):
@@ -141,30 +153,30 @@ class Maze:
     def decide_agent_starting_location(self):
         Exception("Unimplemented")
 
-        #        rectangle = Rectangle(Point(x, 1), Point(x + 1, 2))
-        #        rectangle.setFill("#000000")
-        #        rectangle.draw(window)
-
     def prep_maze_graphics(self, x_pos, y_pos, color, cell_type):
         if cell_type == "Free":
             maze_cell = Rectangle(Point(x_pos + 1, y_pos + 1), Point(x_pos + 2, y_pos + 2))
             maze_cell.setFill(color)
-            maze_cell.draw(self.win)
+            self.map_graphics[(x_pos, y_pos)] = maze_cell
 
         elif cell_type == "Wall":
             maze_cell = Rectangle(Point(x_pos + 1, y_pos + 1), Point(x_pos + 2, y_pos + 2))
             maze_cell.setFill(color)
-            maze_cell.draw(self.win)
+            self.map_graphics[(x_pos, y_pos)] = maze_cell
 
         elif cell_type == "Entry":
             maze_cell = Rectangle(Point(x_pos + 1.75, y_pos + 1.75), Point(x_pos + 1.25, y_pos + 1.25))
             maze_cell.setFill(color)
-            maze_cell.draw(self.win)
+            self.map_graphics[(x_pos, y_pos)] = maze_cell
 
         elif cell_type == "Agent":
             maze_cell = Rectangle(Point(x_pos + 1.75, y_pos + 1.75), Point(x_pos + 1.25, y_pos + 1.25))
             maze_cell.setFill(color)
-            maze_cell.draw(self.win)
+            self.map_graphics[(x_pos, y_pos)] = maze_cell
+
+    def show_maze_graphics(self):
+        for x in self.map_graphics:
+            self.map_graphics.get(x).draw(self.win)
 
     # Loads our maze from the .tsv file
     def generate_maze(self, maze_file):
@@ -336,6 +348,13 @@ print(maze.map_tiles)
 
 #drawBoard(win, 1, 2)
 maze.win.setBackground("gray")
+
+#maze.win.setBackground("green")
+maze.show_maze_graphics()
+
+time.sleep(3)
+
 maze.win.getMouse()
-maze.win.close()
+
+#maze.win.close()
 
